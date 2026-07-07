@@ -1,0 +1,70 @@
+name: expense_vault
+description: ExpenseVault - Personal Finance Tracker
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.1.0 <4.0.0"
+  flutter: ">=3.13.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ----- State Management -----
+  # flutter_bloc: BLoC pattern for state management
+  flutter_bloc: ^8.1.3
+  # equatable: Makes comparing BLoC states/events easy (no boilerplate)
+  equatable: ^2.0.5
+
+  # ----- Database (SQLite) -----
+  # sqflite: SQLite for Android & iOS (platform channel based)
+  sqflite: ^2.3.0
+  # sqflite_common: Shared SQLite types (Database, ConflictAlgorithm, etc.)
+  # Used directly so we can import types without platform-specific deps
+  sqflite_common: ^2.5.0
+  # sqflite_common_ffi: SQLite for Windows, macOS, Linux (uses native sqlite3)
+  sqflite_common_ffi: ^2.3.0+1
+  # sqflite_common_ffi_web: SQLite for Flutter Web via WASM + IndexedDB
+  sqflite_common_ffi_web: ^0.4.2+1
+  # path: Helps build the database file path on device
+  path: ^1.8.3
+
+  # ----- Charts -----
+  # fl_chart: Beautiful charts for the Report screen
+  fl_chart: ^0.63.0
+
+  # ----- Utilities -----
+  # intl: Formats dates and numbers (e.g. ₹1,000.00)
+  intl: ^0.18.1
+  # uuid: Generates unique IDs for banks, transactions, etc.
+  uuid: ^3.0.7
+  # crypto: SHA-256 hashing for secure PIN storage
+  crypto: ^3.0.3
+
+  # ----- Biometric Auth -----
+  # local_auth: Face ID / Fingerprint authentication
+  local_auth: ^2.1.6
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/fonts/Poppins/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
