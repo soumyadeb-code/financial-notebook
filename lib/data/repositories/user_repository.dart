@@ -42,7 +42,6 @@ class UserRepository {
       'id': _userId,
       'name': name,
       'pin_hash': '',
-      'biometric_enabled': 0,
       'categories_seeded': 0,
     });
   }
@@ -83,15 +82,6 @@ class UserRepository {
     return true;
   }
 
-  /// Saves whether biometric login is enabled.
-  Future<void> setBiometricEnabled(bool enabled) async {
-    await _db.updateWhere(
-      'user',
-      {'biometric_enabled': enabled ? 1 : 0},
-      where: 'id = ?',
-      whereArgs: [_userId],
-    );
-  }
 
   /// Marks that default categories have been seeded.
   /// So we don't re-seed them every time the app opens.
