@@ -40,21 +40,19 @@ class UserNeedsPinSetup extends UserState {
 /// User is set up but needs to verify their PIN
 class UserNeedsPinVerification extends UserState {
   final String name;
-  final bool biometricEnabled;
-  const UserNeedsPinVerification(this.name, {this.biometricEnabled = false});
+  const UserNeedsPinVerification(this.name);
 
   @override
-  List<Object?> get props => [name, biometricEnabled];
+  List<Object?> get props => [name];
 }
 
 /// User has been successfully authenticated — enter the app
 class UserAuthenticated extends UserState {
   final String name;
-  final bool biometricEnabled;
-  const UserAuthenticated(this.name, {this.biometricEnabled = false});
+  const UserAuthenticated(this.name);
 
   @override
-  List<Object?> get props => [name, biometricEnabled];
+  List<Object?> get props => [name];
 }
 
 /// PIN was wrong — show an error

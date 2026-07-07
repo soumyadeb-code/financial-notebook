@@ -100,7 +100,6 @@ class _SplashScreenState extends State<SplashScreen>
             SecurityPinScreen(
               mode: PinMode.verify,
               userName: state.name,
-              biometricEnabled: state.biometricEnabled,
             ),
           );
         } else if (state is UserAuthenticated) {

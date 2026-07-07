@@ -42,16 +42,19 @@ dependencies:
   # crypto: SHA-256 hashing for secure PIN storage
   crypto: ^3.0.3
 
-  # ----- Biometric Auth -----
-  # local_auth: Face ID / Fingerprint authentication
-  local_auth: ^2.1.6
 
   cupertino_icons: ^1.0.8
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/business.png"
 
 flutter:
   uses-material-design: true

@@ -9,16 +9,12 @@
 import 'dart:convert'; // For utf8 encoding (PIN hashing)
 
 import 'package:crypto/crypto.dart'; // SHA-256 hashing
-import 'package:local_auth/local_auth.dart';
 
 import '../../core/storage/database_service.dart';
 import '../models/user_model.dart';
 
 class UserRepository {
   final DatabaseService _db;
-
-  // local_auth plugin — handles Face ID / Fingerprint
-  final LocalAuthentication _localAuth = LocalAuthentication();
 
   // The ID we always use for the single user row
   static const int _userId = 1;
@@ -108,62 +104,6 @@ class UserRepository {
     );
   }
 
-  // ── Biometric Auth ─────────────────────────────────────────
-  /// Returns true if the device supports biometrics AND the user
-  /// has biometric login enabled.
-  Future<bool> canUseBiometrics(UserModel user) async {
-    if (!user.biometricEnabled) return false;
-    try {
-      final canCheck = await _localAuth.canCheckBiometrics;
-      final isDeviceSupported = await _localAuth.isDeviceSupported();
-      return canCheck && isDeviceSupported;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// Returns the list of enrolled biometric types on this device.
-  /// e.g. [BiometricType.fingerprint, BiometricType.face]
-  Future<List<BiometricType>> getAvailableBiometrics() async {
-    try {
-      return await _localAuth.getAvailableBiometrics();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  /// Triggers the system biometric prompt (Face ID / Fingerprint).
-  /// - Automatically uses whichever biometrics the device supports.
-  /// - Returns true if the user authenticates successfully.
-  Future<bool> authenticateWithBiometrics() async {
-    try {
-      // Check if device can check biometrics at all
-      final canCheck = await _localAuth.canCheckBiometrics;
-      final isSupported = await _localAuth.isDeviceSupported();
-      if (!canCheck || !isSupported) return false;
-
-      // Get enrolled biometric types to build the right message
-      final availableBiometrics = await _localAuth.getAvailableBiometrics();
-      String reason = 'Verify your identity to open Financial Notebook';
-      if (availableBiometrics.contains(BiometricType.face)) {
-        reason = 'Use Face Recognition to unlock Financial Notebook';
-      } else if (availableBiometrics.contains(BiometricType.fingerprint) ||
-          availableBiometrics.contains(BiometricType.strong)) {
-        reason = 'Use your fingerprint to unlock Financial Notebook';
-      }
-
-      return await _localAuth.authenticate(
-        localizedReason: reason,
-        options: const AuthenticationOptions(
-          biometricOnly: true,   // Don't fall back to device PIN
-          stickyAuth: true,      // Don't cancel when app goes background
-          sensitiveTransaction: true,
-        ),
-      );
-    } catch (_) {
-      return false;
-    }
-  }
 
   // ── Private Helpers ────────────────────────────────────────
   /// Converts rawPin → SHA-256 hex string.

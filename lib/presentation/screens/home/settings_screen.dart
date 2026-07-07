@@ -7,8 +7,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:local_auth/local_auth.dart';
-
 import '../../../blocs/user/user_bloc.dart';
 import '../../../blocs/user/user_event.dart';
 import '../../../blocs/user/user_state.dart';
@@ -38,8 +36,6 @@ class SettingsScreen extends StatelessWidget {
         builder: (context, state) {
           final name =
               state is UserAuthenticated ? state.name : '';
-          final biometricEnabled =
-              state is UserAuthenticated ? state.biometricEnabled : false;
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -64,19 +60,6 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              _SettingsSection(
-                title: 'Security',
-                items: [
-                  _BiometricToggle(
-                    enabled: biometricEnabled,
-                    onChanged: (val) =>
-                        context.read<UserBloc>().add(SetBiometricEnabled(val)),
-                  ),
-                ],
-              ),
-
 
               _SettingsSection(
                 title: 'About',
@@ -321,155 +304,6 @@ class _SettingsItem extends StatelessWidget {
           ? Icon(Icons.arrow_forward_ios,
               color: AppColors.textHint, size: 14)
           : null,
-    );
-  }
-}
-
-
-// ============================================================
-// _BiometricToggle — detects fingerprint / face, shows right UI
-// ============================================================
-class _BiometricToggle extends StatefulWidget {
-  final bool enabled;
-  final ValueChanged<bool> onChanged;
-
-  const _BiometricToggle({required this.enabled, required this.onChanged});
-
-  @override
-  State<_BiometricToggle> createState() => _BiometricToggleState();
-}
-
-class _BiometricToggleState extends State<_BiometricToggle> {
-  final LocalAuthentication _auth = LocalAuthentication();
-  List<BiometricType> _available = [];
-  bool _deviceSupported = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkBiometrics();
-  }
-
-  Future<void> _checkBiometrics() async {
-    try {
-      final canCheck = await _auth.canCheckBiometrics;
-      final isSupported = await _auth.isDeviceSupported();
-      final types = canCheck ? await _auth.getAvailableBiometrics() : <BiometricType>[];
-      if (mounted) {
-        setState(() {
-          _deviceSupported = canCheck && isSupported;
-          _available = types;
-        });
-      }
-    } catch (_) {}
-  }
-
-  IconData get _icon {
-    if (_available.contains(BiometricType.face)) return Icons.face_unlock_outlined;
-    if (_available.contains(BiometricType.fingerprint) ||
-        _available.contains(BiometricType.strong)) return Icons.fingerprint;
-    return Icons.security_outlined;
-  }
-
-  String get _label {
-    if (_available.contains(BiometricType.face) &&
-        (_available.contains(BiometricType.fingerprint) ||
-            _available.contains(BiometricType.strong))) {
-      return 'Face ID & Fingerprint';
-    }
-    if (_available.contains(BiometricType.face)) return 'Face Recognition';
-    if (_available.contains(BiometricType.fingerprint) ||
-        _available.contains(BiometricType.strong)) return 'Fingerprint Login';
-    return AppStrings.biometricLogin;
-  }
-
-  String get _subtitle {
-    if (!_deviceSupported) return 'Not supported on this device';
-    if (_available.isEmpty) return 'No biometrics enrolled on this device';
-    if (_available.contains(BiometricType.face) &&
-        (_available.contains(BiometricType.fingerprint) ||
-            _available.contains(BiometricType.strong))) {
-      return 'Use Face ID or Fingerprint to unlock the app';
-    }
-    if (_available.contains(BiometricType.face)) {
-      return 'Use Face Recognition to unlock the app';
-    }
-    return 'Use your fingerprint to unlock the app';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(_icon, color: AppColors.accent, size: 26),
-          title: Text(_label, style: AppTextStyles.bodyLarge),
-          subtitle: Text(_subtitle, style: AppTextStyles.bodySmall),
-          trailing: Switch(
-            value: widget.enabled && _deviceSupported && _available.isNotEmpty,
-            onChanged: _deviceSupported && _available.isNotEmpty
-                ? widget.onChanged
-                : null,
-            activeColor: AppColors.accent,
-          ),
-        ),
-        // Show individual biometric chips when multiple types available
-        if (_deviceSupported && _available.length > 1)
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-            child: Row(
-              children: [
-                if (_available.contains(BiometricType.fingerprint) ||
-                    _available.contains(BiometricType.strong))
-                  _BiometricChip(
-                    icon: Icons.fingerprint,
-                    label: 'Fingerprint',
-                    color: AppColors.accent,
-                  ),
-                const SizedBox(width: 8),
-                if (_available.contains(BiometricType.face))
-                  _BiometricChip(
-                    icon: Icons.face_unlock_outlined,
-                    label: 'Face ID',
-                    color: AppColors.accentLight,
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _BiometricChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _BiometricChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(label,
-              style: AppTextStyles.labelSmall.copyWith(color: color)),
-        ],
-      ),
     );
   }
 }

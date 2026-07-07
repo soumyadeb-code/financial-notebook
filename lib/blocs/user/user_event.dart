@@ -46,19 +46,6 @@ class VerifyPin extends UserEvent {
   List<Object?> get props => [pin];
 }
 
-/// Triggered when the user taps the biometric (face/fingerprint) button
-class AuthenticateWithBiometric extends UserEvent {
-  const AuthenticateWithBiometric();
-}
-
-/// Triggered when the user changes biometric setting
-class SetBiometricEnabled extends UserEvent {
-  final bool enabled;
-  const SetBiometricEnabled(this.enabled);
-
-  @override
-  List<Object?> get props => [enabled];
-}
 
 /// Triggered when the user updates their name in Settings
 class UpdateName extends UserEvent {

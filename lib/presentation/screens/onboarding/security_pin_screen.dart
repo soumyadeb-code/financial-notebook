@@ -20,14 +20,12 @@ enum PinMode { setup, verify }
 
 class SecurityPinScreen extends StatefulWidget {
   final PinMode mode;
-  final String userName;
-  final bool biometricEnabled;
+  final String? userName;
 
   const SecurityPinScreen({
     super.key,
     required this.mode,
-    required this.userName,
-    this.biometricEnabled = false,
+    this.userName,
   });
 
   @override
@@ -43,12 +41,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.mode == PinMode.verify && widget.biometricEnabled) {
-      // Trigger biometric automatically when the screen opens
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<UserBloc>().add(const AuthenticateWithBiometric());
-      });
-    }
   }
 
   @override
@@ -163,38 +155,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
                         ),
                         const SizedBox(height: 20), // Replaced Spacer()
 
-                        // ----- Biometric Button (verify mode only) -----
-                        if (widget.mode == PinMode.verify &&
-                            widget.biometricEnabled) ...[
-                          GestureDetector(
-                            onTap: () => context
-                                .read<UserBloc>()
-                                .add(const AuthenticateWithBiometric()),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surface,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: AppColors.border),
-                                  ),
-                                  child: Icon(
-                                    Icons.face_outlined,
-                                    color: AppColors.accent,
-                                    size: 28,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  AppStrings.orUseBiometric,
-                                  style: AppTextStyles.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
 
                         // ----- Number Pad -----
                         _buildNumberPad(),

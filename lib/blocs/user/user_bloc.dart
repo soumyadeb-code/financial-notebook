@@ -16,10 +16,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<SaveName>(_onSaveName);
     on<SavePin>(_onSavePin);
     on<VerifyPin>(_onVerifyPin);
-    on<AuthenticateWithBiometric>(_onBiometric);
     on<UpdateName>(_onUpdateName);
     on<UpdatePin>(_onUpdatePin);
-    on<SetBiometricEnabled>(_onSetBiometric);
   }
 
   /// On app launch: load user from SQLite and route to correct screen.
@@ -28,14 +26,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     final user = await _repository.loadUser();
 
     if (user == null) {
-      emit(const UserNotSetup());                               // First launch
+      emit(const UserNotSetup());
     } else if (user.pinHash.isEmpty) {
-      emit(UserNeedsPinSetup(user.name));                       // Has name, no PIN
+      emit(UserNeedsPinSetup(user.name));
     } else {
-      emit(UserNeedsPinVerification(
-        user.name,
-        biometricEnabled: user.biometricEnabled,
-      ));
+      emit(UserNeedsPinVerification(user.name));
     }
   }
 
@@ -47,11 +42,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   /// Onboarding step 2: hash and save PIN, then authenticate.
   Future<void> _onSavePin(SavePin event, Emitter<UserState> emit) async {
-    // event.pin is the field name (not rawPin)
     await _repository.savePin(event.pin);
     final user = await _repository.loadUser();
     if (user != null) {
-      emit(UserAuthenticated(user.name, biometricEnabled: user.biometricEnabled));
+      emit(UserAuthenticated(user.name));
     }
   }
 
@@ -62,36 +56,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(const PinVerificationFailed('User not found'));
       return;
     }
-
-    // event.pin is the plain PIN typed by user
     final isCorrect = await _repository.verifyPin(event.pin, user.pinHash);
     if (isCorrect) {
-      emit(UserAuthenticated(user.name, biometricEnabled: user.biometricEnabled));
+      emit(UserAuthenticated(user.name));
     } else {
       emit(const PinVerificationFailed('Incorrect PIN. Try again.'));
     }
   }
 
-  /// Biometric login (Face ID / Fingerprint).
-  Future<void> _onBiometric(
-      AuthenticateWithBiometric event, Emitter<UserState> emit) async {
-    final success = await _repository.authenticateWithBiometrics();
-    if (success) {
-      final user = await _repository.loadUser();
-      if (user != null) {
-        emit(UserAuthenticated(user.name, biometricEnabled: user.biometricEnabled));
-      }
-    } else {
-      emit(const PinVerificationFailed('Biometric authentication failed'));
-    }
-  }
-
-  /// Settings: update display name.
   Future<void> _onUpdateName(UpdateName event, Emitter<UserState> emit) async {
     await _repository.updateName(event.name);
     final user = await _repository.loadUser();
     if (user != null) {
-      emit(UserAuthenticated(user.name, biometricEnabled: user.biometricEnabled));
+      emit(UserAuthenticated(user.name));
     }
   }
 
@@ -100,17 +77,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     final success = await _repository.updatePin(event.oldPin, event.newPin);
     if (!success) {
       emit(const PinVerificationFailed('Current PIN is incorrect'));
-    }
-    // No nav change on success — user stays on Settings
-  }
-
-  /// Settings: toggle biometric login.
-  Future<void> _onSetBiometric(
-      SetBiometricEnabled event, Emitter<UserState> emit) async {
-    await _repository.setBiometricEnabled(event.enabled);
-    final user = await _repository.loadUser();
-    if (user != null) {
-      emit(UserAuthenticated(user.name, biometricEnabled: user.biometricEnabled));
     }
   }
 }
