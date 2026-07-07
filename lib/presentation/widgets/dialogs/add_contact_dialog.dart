@@ -53,7 +53,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPadding),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -103,7 +103,7 @@ class _AddTransactionSheetState extends State<_AddTransactionSheet> {
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomPadding),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
         child: Column(

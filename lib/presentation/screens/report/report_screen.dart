@@ -23,7 +23,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../data/models/contact_model.dart';
 import '../../../data/models/transaction_model.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -624,68 +623,6 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  /// Bank balances list
-  Widget _buildBankBalances() {
-    return BlocBuilder<BankBloc, BankState>(
-      builder: (context, state) {
-        if (state is! BankLoaded || state.banks.isEmpty) {
-          return const SizedBox();
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Account Balances', style: AppTextStyles.headingMedium),
-            const SizedBox(height: 12),
-            ...state.banks.map((bank) {
-              // Calculate percentage of total net worth
-              final pct = state.totalNetWorth > 0
-                  ? bank.currentBalance / state.totalNetWorth
-                  : 0.0;
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(bank.name, style: AppTextStyles.bodyLarge),
-                        const Spacer(),
-                        Text(
-                          CurrencyFormatter.format(bank.currentBalance),
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // Progress bar showing share of total wealth
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: pct.clamp(0.0, 1.0),
-                        backgroundColor: AppColors.border,
-                        color: AppColors.accent,
-                        minHeight: 6,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
-        );
-      },
     );
   }
 
